@@ -8,5 +8,6 @@ pipeline:
     active: false
 
 policies:
-  - name: FlowPolicy
+- name: FlowPolicy
 #  - name: EnterpriseSearchPolicy
+assistant_id: 20251103-174634-sour-acre
