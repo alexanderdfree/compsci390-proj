@@ -10,7 +10,7 @@ slots:
     mappings:
       - type: from_llm
   booking_number:
-    type: integer
+    type: float
     mappings:
       - type: from_llm
   booking_date:
