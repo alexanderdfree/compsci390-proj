@@ -6,3 +6,12 @@ flows:
       - collect: amount
         description: the number of US dollars to send
       - action: utter_transfer_complete
+
+  make_booking:
+    description: Help users book a room given a date and number of customers.
+    steps:
+      - collect: booking_number
+        description: number of people looking to book
+      - collect: booking_date
+        description: desired date for booking
+      - action: utter_booking_complete

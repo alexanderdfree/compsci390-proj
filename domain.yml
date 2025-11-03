@@ -9,6 +9,14 @@ slots:
     type: float
     mappings:
       - type: from_llm
+  booking_number:
+    type: integer
+    mappings:
+      - type: from_llm
+  booking_date:
+    type: text
+    mappings:
+      - type: from_llm
 
 responses:
   utter_ask_recipient:
@@ -17,8 +25,17 @@ responses:
   utter_ask_amount:
     - text: "How much money would you like to send?"
 
+  utter_ask_booking_number:
+    - text: "How many people would you like to book for?"
+
+  utter_ask_booking_date:
+    - text: "What nights would you like to stay with us?"
+
   utter_transfer_complete:
     - text: "All done. {amount} has been sent to {recipient}."
+
+  utter_booking_complete:
+    - text: "Great! I made a booking for {booking_number} on {booking_date}. We look forward to seeing you then!"
 
   utter_free_chitchat_response:
     - text: "placeholder"
