@@ -6,6 +6,7 @@ from rasa_sdk.executor import CollectingDispatcher
 
 
 class ActionCheckSufficientFunds(Action):
+    
     def name(self) -> Text:
         return "action_check_sufficient_funds"
 
