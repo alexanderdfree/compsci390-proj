@@ -1,5 +1,8 @@
 version: "3.1"
 
+actions:
+  - action_get_possible_rooms
+
 slots:
   recipient:
     type: text
@@ -17,6 +20,14 @@ slots:
     type: text
     mappings:
       - type: from_llm
+  possible_rooms:
+    type: text
+    mappings:
+      - type: controlled
+  preferred_room:
+    type: text
+    mappings:
+      - type: from_llm
 
 responses:
   utter_ask_recipient:
@@ -30,6 +41,9 @@ responses:
 
   utter_ask_booking_date:
     - text: "What nights would you like to stay with us?"
+
+  utter_ask_preferred_room:
+    - text: "The available rooms for {booking_date} are: {possible_rooms}. Which room would you like to book?"
 
   utter_transfer_complete:
     - text: "All done. {amount} has been sent to {recipient}."

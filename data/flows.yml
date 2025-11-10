@@ -14,4 +14,7 @@ flows:
         description: number of people looking to book
       - collect: booking_date
         description: desired date for booking
+      - action: action_get_possible_rooms
+      - collect: preferred_room
+        description: room choice given available rooms
       - action: utter_booking_complete
