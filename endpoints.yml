@@ -44,8 +44,9 @@ action_endpoint:
 # Allow rephrasing of responses using a Rasa-hosted model
 nlg:
   type: rephrase
+  rephrase_all: True
   llm:
-    model_group: rasa_command_generation_model
+    model_group: openai_model
 
 model_groups:
   - id: rasa_command_generation_model
@@ -53,6 +54,10 @@ model_groups:
       - provider: rasa
         model: rasa/command-generator-llama-3.1-8b-instruct
         api_base: "https://tutorial-llm.rasa.ai"
+  - id: openai_model
+    models:
+      - provider: openai
+        model: gpt-4o
 
 tracker_store:
   type: SQL
