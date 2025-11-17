@@ -30,6 +30,9 @@ slots:
       - type: from_llm
 
 responses:
+  utter_greet:
+    - text: "Hello! How can I help you with Ivy Gate today?"
+
   utter_ask_recipient:
     - text: "Who would you like to send money to?"
 
