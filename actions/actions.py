@@ -4,6 +4,14 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.events import SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 
+#give customer options of all open hotel rooms that:
+#match the amount of people
+#use lowest room_ID available
+
+#flow for initial booking
+#flow to handle booking confirmation
+
+#scenario 1 -
 import sqlite3
 
 class ActionCheckSufficientFunds(Action):
