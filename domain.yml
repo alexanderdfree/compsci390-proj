@@ -1,8 +1,8 @@
 version: "3.1"
 
 actions:
-  - action_get_possible_rooms
-
+  - action_get_matching_rooms
+  - action_find_availability
 slots:
   recipient:
     type: text
@@ -20,7 +20,7 @@ slots:
     type: text
     mappings:
       - type: from_llm
-  possible_rooms:
+  matching_rooms:
     type: text
     mappings:
       - type: controlled

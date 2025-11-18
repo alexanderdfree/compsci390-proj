@@ -1,11 +1,15 @@
 flows:
-  transfer_money:
-    description: Help users send money to friends and family.
+  make_booking:
+    description: Help users book a room given a date and number of customers.
     steps:
-      - collect: recipient
-      - collect: amount
-        description: the number of US dollars to send
-      - action: utter_transfer_complete
+      - collect: booking_number
+        description: number of people looking to book
+      - collect: booking_date
+        description: desired date for booking
+      - action: action_get_possible_rooms
+      - collect: preferred_room
+        description: room choice given available rooms
+      - action: utter_booking_complete
 
 #!!! TODO
 
@@ -20,30 +24,21 @@ flows:
 
 #maintain a dictionary slot that maintains a list of the SQL columns. 
 #each entry maps sqlCOLname -> preferred value
-#but could be in the form of an equality attached to an integer. 
+#initially starts unfilled but fills according to user preferences
+#if the slot is set, then that is used to filter for a room
+
+
 
 #if the confirmation step fails
 #how to figure out which columns to update and why
 #how to figure out natural text
-
-#initially starts unfilled but fills according to user preferences
-
-# list of constraints
-
-#best practices in rasa
+#but could be in the form of an equality attached to an integer. 
 
 
-  make_booking:
-    description: Help users book a room given a date and number of customers.
-    steps:
-      - collect: booking_number
-        description: number of people looking to book
-      - collect: booking_date
-        description: desired date for booking
-      - action: action_get_possible_rooms
-      - collect: preferred_room
-        description: room choice given available rooms
-      - action: utter_booking_complete
+
+
+
+  
 
 
 #! TODO change existing booking
