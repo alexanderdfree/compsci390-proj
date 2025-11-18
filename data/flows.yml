@@ -7,6 +7,32 @@ flows:
         description: the number of US dollars to send
       - action: utter_transfer_complete
 
+#!!! TODO
+
+# figure out how to add preferred guestname
+# answer questions or change existing booking
+# first get the rooms 
+# need to loop thru entire list of bookings
+# give the person the first available room that meets the criteria
+#then they gave up
+
+# slots 
+
+#maintain a dictionary slot that maintains a list of the SQL columns. 
+#each entry maps sqlCOLname -> preferred value
+#but could be in the form of an equality attached to an integer. 
+
+#if the confirmation step fails
+#how to figure out which columns to update and why
+#how to figure out natural text
+
+#initially starts unfilled but fills according to user preferences
+
+# list of constraints
+
+#best practices in rasa
+
+
   make_booking:
     description: Help users book a room given a date and number of customers.
     steps:
@@ -18,3 +44,6 @@ flows:
       - collect: preferred_room
         description: room choice given available rooms
       - action: utter_booking_complete
+
+
+#! TODO change existing booking

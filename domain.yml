@@ -28,6 +28,7 @@ slots:
     type: text
     mappings:
       - type: from_llm
+    # can do array 
 
 responses:
   utter_greet:
