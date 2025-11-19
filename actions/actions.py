@@ -1,7 +1,16 @@
 """
 DATABASE SCHEMA:
-CREATE TABLE rooms ( room_id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, size_sqm INTEGER NOT NULL, bed_type TEXT NOT NULL, capacity INTEGER NOT NULL, price_per_night_eur REAL NOT NULL, bathroom_type TEXT CHECK(bathroom_type IN ('shower','bath')) NOT NULL, view TEXT CHECK(view IN ('street','garden')) NOT NULL, amenities TEXT, floor INTEGER, breakfast_fee_eur REAL NOT NULL );
-CREATE TABLE bookings ( booking_id INTEGER PRIMARY KEY, room_id INTEGER NOT NULL, guest_name TEXT NOT NULL, check_in DATE NOT NULL, check_out DATE NOT NULL, num_guests INTEGER NOT NULL CHECK(num_guests > 0), breakfast BOOLEAN NOT NULL DEFAULT 0, notes TEXT, CHECK (date(check_out) > date(check_in)), FOREIGN KEY (room_id) REFERENCES rooms(room_id) );
+
+CREATE TABLE rooms ( room_id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, 
+size_sqm INTEGER NOT NULL, bed_type TEXT NOT NULL, capacity INTEGER NOT NULL, 
+price_per_night_eur REAL NOT NULL, bathroom_type TEXT CHECK(bathroom_type IN ('shower','bath')) NOT NULL, view TEXT CHECK(view IN ('street','garden')) NOT NULL, 
+amenities TEXT, floor INTEGER, breakfast_fee_eur REAL NOT NULL );
+
+CREATE TABLE bookings ( booking_id INTEGER PRIMARY KEY, room_id INTEGER NOT NULL, 
+guest_name TEXT NOT NULL, check_in DATE NOT NULL, check_out DATE NOT NULL,
+ num_guests INTEGER NOT NULL CHECK(num_guests > 0), breakfast BOOLEAN NOT NULL DEFAULT 0,
+  notes TEXT, CHECK (date(check_out) > date(check_in)), 
+  FOREIGN KEY (room_id) REFERENCES rooms(room_id) );
 """
 
 from __future__ import annotations
