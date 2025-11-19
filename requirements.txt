@@ -1,9 +1,12 @@
-# Core Rasa stack for training and testing this project
-# Choose a Python version supported by this Rasa release (e.g. 3.10 or 3.11).
 
-rasa==3.7.0
-rasa-sdk==3.7.0
+# Core framework
+rasa-pro==3.9.20
 
-# Optional: add extra tools below if you extend the project
-# pytest
-# python-dotenv
+# For loading .env files locally (non-optional for your use case)
+python-dotenv>=1.0.0
+
+# If you're calling OpenAI directly from Python code
+openai>=1.0.0
+
+# If you use pytest for custom action / unit tests
+pytest>=8.0.0
