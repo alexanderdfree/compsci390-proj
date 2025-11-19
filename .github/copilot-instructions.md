@@ -29,7 +29,7 @@ First, prioritize scenario 1 until its fully implemented.
 
 
 ## Assignment intent & scenarios
-- Build an English-only Rasa assistant for the Ivy Gate B&B in Dalkey that uses flows plus a SQLite DB (`db/IvyGate.db`).
+- Build an English-only Rasa-pro assistant for the Ivy Gate B&B in Dalkey that uses flows plus a SQLite DB (`db/IvyGate.db`).
 - Prioritize scenario 1 (new booking) until it is robust; then support scenario 4 (things to do in Dalkey). Scenarios 2–3 are optional but must not break existing flows.
 - The agent must initiate the conversation on session start (see `data/patterns.yml` → `pattern_session_start`).
 - Contextual rephrasing is ON; keep responses factual and concise so rephrasing stays faithful.

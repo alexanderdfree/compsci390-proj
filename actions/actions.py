@@ -21,9 +21,57 @@ import sqlite3
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
-from rasa_sdk import Action, Tracker
-from rasa_sdk.events import SlotSet
-from rasa_sdk.executor import CollectingDispatcher
+try:
+    # These imports are available in a full Rasa environment.
+    from rasa_sdk import Action, Tracker
+    from rasa_sdk.events import SlotSet
+    from rasa_sdk.executor import CollectingDispatcher
+except ModuleNotFoundError:  # pragma: no cover - allows running helper tests without Rasa installed
+    # Provide minimal stubs so local unit tests that only exercise the pure
+    # helper functions (date parsing, availability queries, etc.) can import
+    # this module even when ``rasa_sdk`` isn't installed.
+
+    class Tracker:  # type: ignore[override]
+        """Lightweight stand-in that always returns empty slots."""
+
+        def get_slot(self, key: str) -> Any:  # noqa: D401 - tiny stub
+            """Return ``None`` for any slot name."""
+
+            _ = key  # key is unused in the stub but kept for API compatibility
+            return None
+
+
+    class CollectingDispatcher:  # type: ignore[override]
+        """Stub dispatcher that silently ignores all messages."""
+
+        def utter_message(self, text: str | None = None, **kwargs: Any) -> None:  # noqa: D401
+            """Pretend to send a message (no-op)."""
+
+            _ = text, kwargs  # keep signature compatible without using values
+            # In helper tests we don't care about bot output.
+            return None
+
+
+    class Action:  # type: ignore[override]
+        """Base stub matching the Rasa ``Action`` interface shape."""
+
+        def name(self) -> str:  # pragma: no cover - not used in tests
+            raise NotImplementedError
+
+        async def run(  # pragma: no cover - not used in tests
+            self,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[str, Any],
+        ) -> List[Dict[str, Any]]:
+            raise NotImplementedError
+
+
+    class SlotSet(dict):  # type: ignore[override]
+        """Simple stand-in for Rasa's ``SlotSet`` event."""
+
+        def __init__(self, key: str, value: Any) -> None:
+            super().__init__({"event": "slot", "name": key, "value": value})
 
 
 logger = logging.getLogger(__name__)

@@ -1,1 +1,36 @@
-#write stubs for methods used in testing here
+version: "3.1"
+
+# Stub / placeholder tests for optional scenarios.
+#
+# These are NOT executed because they are commented out, but they serve as
+# a blueprint for future tests once Scenarios 2 and 3 are fully
+# implemented. They also document the expected high-level behaviour.
+
+# stories:
+#   - story: scenario2_lookup_existing_booking_by_id
+#     description: Caller asks about an existing booking using a booking ID.
+#     steps:
+#       - user: |
+#           I have a booking with ID 123. Can you remind me of the dates?
+#       - action: action_lookup_booking  # TODO: implement this action
+#
+#   - story: scenario2_lookup_existing_booking_by_name_and_date
+#     description: Caller asks about an existing booking without knowing the ID.
+#     steps:
+#       - user: |
+#           I booked a room under the name Alex for next weekend. Can you confirm it?
+#       - action: action_lookup_booking  # TODO: implement this action
+#
+#   - story: scenario3_ask_about_breakfast_without_booking
+#     description: Caller without a booking asks about breakfast options.
+#     steps:
+#       - user: |
+#           Do you serve breakfast, and how much does it cost?
+#       - action: utter_free_chitchat_response
+#
+#   - story: scenario3_room_details_without_booking
+#     description: Caller without a booking asks about room details (beds, view, pets, smoking, etc.).
+#     steps:
+#       - user: |
+#           Can you tell me about your sea view rooms and whether pets are allowed?
+#       - action: utter_free_chitchat_response
