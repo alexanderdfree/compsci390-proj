@@ -1,0 +1,9 @@
+# Core Rasa stack for training and testing this project
+# Choose a Python version supported by this Rasa release (e.g. 3.10 or 3.11).
+
+rasa==3.7.0
+rasa-sdk==3.7.0
+
+# Optional: add extra tools below if you extend the project
+# pytest
+# python-dotenv

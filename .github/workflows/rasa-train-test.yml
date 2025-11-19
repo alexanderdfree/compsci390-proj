@@ -1,0 +1,42 @@
+name: Rasa Train & Test
+
+on:
+  push:
+    branches: [ copilot-playground ]
+
+jobs:
+  training-testing:
+    name: Training and Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rasa Train and Test GitHub Action
+        uses: RasaHQ/rasa-train-test-gha@v2.3.0
+        with:
+          # Install your Python deps from requirements.txt inside the container
+          requirements_file: requirements.txt
+
+          # Validate training data and domain
+          data_validate: true
+
+          # Train a model (Core + NLU)
+          rasa_train: true
+          train_type: all
+
+          # Run tests (Core + NLU)
+          rasa_test: true
+          test_type: all
+
+          # Optional: publish summary comment if this push is tied to a PR
+          publish_summary: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload model
+        if: github.ref == 'refs/heads/copilot-playground'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rasa-model
+          path: models

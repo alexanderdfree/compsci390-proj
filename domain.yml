@@ -22,6 +22,26 @@ slots:
     mappings:
       - type: from_llm
 
+  preferred_view:
+    type: text
+    mappings:
+      - type: from_llm
+
+  preferred_bed_type:
+    type: text
+    mappings:
+      - type: from_llm
+
+  preferred_bathroom_type:
+    type: text
+    mappings:
+      - type: from_llm
+
+  max_price_per_night:
+    type: float
+    mappings:
+      - type: from_llm
+
   guest_name:
     type: text
     mappings:

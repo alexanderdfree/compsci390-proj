@@ -144,22 +144,56 @@ def normalize_bool(raw: Any) -> Optional[bool]:
 
 
 def find_available_rooms(
-    num_guests: int, check_in: date, check_out: date
+    num_guests: int,
+    check_in: date,
+    check_out: date,
+    preferred_view: Optional[str] = None,
+    preferred_bed_type: Optional[str] = None,
+    preferred_bathroom_type: Optional[str] = None,
+    max_price_per_night: Optional[float] = None,
 ) -> List[Dict[str, Any]]:
     """Return a list of rooms that can host ``num_guests`` and are free.
 
-    A room is considered available if it has sufficient capacity and there is
-    no existing booking whose date range overlaps with the requested stay.
+    A room is considered available if it has sufficient capacity, matches any
+    explicit room preferences provided, and there is no existing booking whose
+    date range overlaps with the requested stay.
     """
 
-    query = """
+    where_clauses = ["capacity >= ?"]
+    params: List[Any] = [num_guests]
+
+    if preferred_view:
+        where_clauses.append("LOWER(view) = LOWER(?)")
+        params.append(str(preferred_view))
+
+    if preferred_bed_type:
+        where_clauses.append("LOWER(bed_type) = LOWER(?)")
+        params.append(str(preferred_bed_type))
+
+    if preferred_bathroom_type:
+        where_clauses.append("LOWER(bathroom_type) = LOWER(?)")
+        params.append(str(preferred_bathroom_type))
+
+    if max_price_per_night is not None:
+        where_clauses.append("price_per_night_eur <= ?")
+        params.append(float(max_price_per_night))
+
+    where_sql = " AND ".join(where_clauses)
+
+    query = f"""
         SELECT room_id,
                name,
                capacity,
                price_per_night_eur,
-               breakfast_fee_eur
+               breakfast_fee_eur,
+               bed_type,
+               bathroom_type,
+               view,
+               size_sqm,
+               amenities,
+               floor
         FROM rooms
-        WHERE capacity >= ?
+        WHERE {where_sql}
           AND NOT EXISTS (
                 SELECT 1
                 FROM bookings b
@@ -170,7 +204,7 @@ def find_available_rooms(
         ORDER BY price_per_night_eur ASC, room_id ASC
     """
 
-    params = (num_guests, check_out.isoformat(), check_in.isoformat())
+    params.extend([check_out.isoformat(), check_in.isoformat()])
 
     with sqlite3.connect(DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
@@ -185,6 +219,12 @@ def find_available_rooms(
             "capacity": row["capacity"],
             "price_per_night_eur": row["price_per_night_eur"],
             "breakfast_fee_eur": row["breakfast_fee_eur"],
+            "bed_type": row["bed_type"],
+            "bathroom_type": row["bathroom_type"],
+            "view": row["view"],
+            "size_sqm": row["size_sqm"],
+            "amenities": row["amenities"],
+            "floor": row["floor"],
         }
         for row in rows
     ]
@@ -289,8 +329,27 @@ class ActionGetMatchingRooms(Action):
                 )
             )
             return events
+        preferred_view = tracker.get_slot("preferred_view")
+        preferred_bed_type = tracker.get_slot("preferred_bed_type")
+        preferred_bathroom_type = tracker.get_slot("preferred_bathroom_type")
+        max_price_raw = tracker.get_slot("max_price_per_night")
 
-        rooms = find_available_rooms(num_guests, check_in, check_out)
+        max_price: Optional[float] = None
+        if max_price_raw is not None:
+            try:
+                max_price = float(max_price_raw)
+            except (TypeError, ValueError):
+                logger.info("Could not interpret max_price_per_night=%r as float", max_price_raw)
+
+        rooms = find_available_rooms(
+            num_guests,
+            check_in,
+            check_out,
+            preferred_view=preferred_view,
+            preferred_bed_type=preferred_bed_type,
+            preferred_bathroom_type=preferred_bathroom_type,
+            max_price_per_night=max_price,
+        )
 
         # Store structured data for downstream actions.
         events.append(SlotSet("check_in_date", check_in.isoformat()))
@@ -369,7 +428,30 @@ class ActionFindAvailability(Action):
             )
             return []
 
-        rooms = find_available_rooms(num_guests, check_in, check_out)
+        preferred_view = tracker.get_slot("preferred_view")
+        preferred_bed_type = tracker.get_slot("preferred_bed_type")
+        preferred_bathroom_type = tracker.get_slot("preferred_bathroom_type")
+        max_price_raw = tracker.get_slot("max_price_per_night")
+
+        max_price: Optional[float] = None
+        if max_price_raw is not None:
+            try:
+                max_price = float(max_price_raw)
+            except (TypeError, ValueError):
+                logger.info(
+                    "Could not interpret max_price_per_night=%r as float in availability check",
+                    max_price_raw,
+                )
+
+        rooms = find_available_rooms(
+            num_guests,
+            check_in,
+            check_out,
+            preferred_view=preferred_view,
+            preferred_bed_type=preferred_bed_type,
+            preferred_bathroom_type=preferred_bathroom_type,
+            max_price_per_night=max_price,
+        )
         message = format_room_options_message(rooms, num_guests, check_in, check_out)
         dispatcher.utter_message(text=message)
 
@@ -500,16 +582,37 @@ class ActionSummarizeBooking(Action):
         bf_text = "with breakfast included" if include_breakfast else "without breakfast"
         guest_prefix = f"{guest_name}, " if guest_name else ""
 
+        # Room detail strings for the confirmation message
+        bed_type = chosen.get("bed_type") or ""
+        bathroom_type = chosen.get("bathroom_type") or ""
+        view = chosen.get("view") or ""
+        size_sqm = chosen.get("size_sqm")
+        amenities = chosen.get("amenities") or ""
+        floor = chosen.get("floor")
+
+        details_parts = [
+            f"a {bed_type} bed" if bed_type else "",
+            f"a {bathroom_type} bathroom" if bathroom_type else "",
+            f"a {view} view" if view else "",
+        ]
+        details = ", ".join(p for p in details_parts if p)
+
+        size_part = f" around {size_sqm} m²" if isinstance(size_sqm, int) else ""
+        floor_part = f" on floor {floor}" if floor is not None else ""
+        amenities_part = f" Amenities include: {amenities}." if amenities else ""
+
         summary = (
-            f"{guest_prefix}staying in {chosen['name']} for {num_guests} guest(s) "
-            f"from {check_in.isoformat()} to {check_out.isoformat()} "
-            f"({nights} night{'s' if nights != 1 else ''}) {bf_text} will cost "
-            f"approximately €{total:.2f} in total."
+            f"{guest_prefix}staying in {chosen['name']}{floor_part}{size_part} "
+            f"({details}) for {num_guests} guest(s) from {check_in.isoformat()} to {check_out.isoformat()} "
+            f"({nights} night{'s' if nights != 1 else ''}) {bf_text} will cost approximately "
+            f"€{total:.2f} in total.{amenities_part}"
         )
 
         dispatcher.utter_message(
             text=summary + " Shall I confirm and make this booking?"
         )
+
+        floor_display = floor if floor is not None else "N/A"
 
         events.extend(
             [
@@ -517,7 +620,9 @@ class ActionSummarizeBooking(Action):
                 SlotSet(
                     "room_info",
                     (
-                        f"Capacity {chosen['capacity']}, €{chosen['price_per_night_eur']:.2f} per night, "
+                        f"Capacity {chosen['capacity']}, {bed_type} bed, {bathroom_type} bathroom, {view} view, "
+                        f"{size_sqm} m², floor {floor_display}, amenities: {amenities}. "
+                        f"€{chosen['price_per_night_eur']:.2f} per night, "
                         f"breakfast €{chosen['breakfast_fee_eur']:.2f} per person per night."
                     ),
                 ),
