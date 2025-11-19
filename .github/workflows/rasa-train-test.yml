@@ -8,7 +8,9 @@ jobs:
   training-testing:
     name: Training and Testing
     runs-on: ubuntu-latest
-
+    env:
+      RASA_LICENSE: ${{ secrets.RASA_LICENSE }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
