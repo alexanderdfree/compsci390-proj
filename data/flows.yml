@@ -1,14 +1,22 @@
 flows:
   make_booking:
-    description: Help users book a room given a date and number of customers.
+    description: Help users book a room at Ivy Gate B&B given dates and number of guests, including a final confirmation step.
     steps:
       - collect: booking_number
         description: number of people looking to book
       - collect: booking_date
-        description: desired date for booking
+        description: desired check-in and check-out dates for the stay
+      - collect: guest_name
+        description: full name to put the booking under
       - action: action_get_matching_rooms
       - collect: preferred_room
-        description: room choice given available rooms
+        description: room choice given the list of available rooms
+      - collect: include_breakfast
+        description: whether the guest wants breakfast included with the stay
+      - action: action_summarize_booking
+      - collect: confirm_booking
+        description: final confirmation from the guest to actually create the booking with the quoted total cost
+      - action: action_create_booking
       - action: utter_booking_complete
 
 #!!! TODO

@@ -3,13 +3,15 @@ version: "3.1"
 actions:
   - action_get_matching_rooms
   - action_find_availability
+  - action_summarize_booking
+  - action_create_booking
 
 slots:
   amount_ppl:
     type: float
     mappings:
       - type: from_llm
-      
+
   booking_number:
     type: float
     mappings:
@@ -17,6 +19,26 @@ slots:
 
   booking_date:
     type: text
+    mappings:
+      - type: from_llm
+
+  guest_name:
+    type: text
+    mappings:
+      - type: from_llm
+
+  preferred_room:
+    type: text
+    mappings:
+      - type: from_llm
+
+  include_breakfast:
+    type: bool
+    mappings:
+      - type: from_llm
+
+  confirm_booking:
+    type: bool
     mappings:
       - type: from_llm
 
@@ -29,12 +51,26 @@ slots:
     type: text
     mappings:
       - type: controlled
-  
+
   room_info:
     type: text
     mappings:
       - type: controlled
-    # can do array 
+
+  check_in_date:
+    type: text
+    mappings:
+      - type: controlled
+
+  check_out_date:
+    type: text
+    mappings:
+      - type: controlled
+
+  booking_id:
+    type: text
+    mappings:
+      - type: controlled
 
 responses:
   utter_greet:
@@ -53,7 +89,7 @@ responses:
   #  - text: "All done. {amount} {recipient}."
 
   utter_booking_complete:
-    - text: "Great! I made a booking for {booking_number} on {booking_date}. We look forward to seeing you then!"
+    - text: "Is there anything else I can help you with for your Ivy Gate B&B stay?"
 
   utter_free_chitchat_response:
     - text: "placeholder"
