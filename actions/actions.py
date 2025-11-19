@@ -347,44 +347,25 @@ class ActionGetMatchingRooms(Action):
 
         try:
             num_guests = normalize_guest_count(raw_guests)
-        except ValueError as exc:
-            dispatcher.utter_message(
-                text=(
-                    "I need a valid positive number of guests to check availability. "
-                    f"{exc} Please tell me how many people will be staying."
-                )
-            )
+        except ValueError:
+            # Use a shared template so conversational logic lives in YAML.
+            dispatcher.utter_message(response="utter_invalid_guest_count")
             return events
 
         if not raw_dates:
-            dispatcher.utter_message(
-                text=(
-                    "To look for rooms I also need your check-in and check-out dates. "
-                    "For example: '2025-11-20 to 2025-11-22'."
-                )
-            )
+            dispatcher.utter_message(response="utter_ask_booking_date")
             return events
 
         try:
             check_in, check_out = parse_booking_date_range(raw_dates)
         except ValueError as exc:
             logger.info("Could not parse booking_date '%s': %s", raw_dates, exc)
-            dispatcher.utter_message(
-                text=(
-                    "I couldn't quite understand those dates. "
-                    "Please specify your check-in and check-out, for example '2025-11-20 to 2025-11-22'."
-                )
-            )
+            dispatcher.utter_message(response="utter_invalid_booking_dates")
             return events
 
         today = date.today()
         if check_out <= today:
-            dispatcher.utter_message(
-                text=(
-                    "I can only make bookings for today or future dates. "
-                    "Could you share a new check-in and check-out date?"
-                )
-            )
+            dispatcher.utter_message(response="utter_past_booking_dates")
             return events
         preferred_view = tracker.get_slot("preferred_view")
         preferred_bed_type = tracker.get_slot("preferred_bed_type")
@@ -445,44 +426,28 @@ class ActionFindAvailability(Action):
 
         try:
             num_guests = normalize_guest_count(raw_guests)
-        except ValueError as exc:
-            dispatcher.utter_message(
-                text=(
-                    "To check availability I need to know how many guests you're booking for. "
-                    f"{exc}"
-                )
-            )
+        except ValueError:
+            dispatcher.utter_message(response="utter_invalid_guest_count")
             return []
 
         if not raw_dates:
-            dispatcher.utter_message(
-                text=(
-                    "To check availability, please tell me your check-in and check-out dates, "
-                    "for example '2025-11-20 to 2025-11-22'."
-                )
-            )
+            dispatcher.utter_message(response="utter_ask_booking_date")
             return []
 
         try:
             check_in, check_out = parse_booking_date_range(raw_dates)
         except ValueError as exc:
-            logger.info("Could not parse booking_date '%s' in availability check: %s", raw_dates, exc)
-            dispatcher.utter_message(
-                text=(
-                    "I couldn't quite understand those dates. "
-                    "Please specify your check-in and check-out, for example '2025-11-20 to 2025-11-22'."
-                )
+            logger.info(
+                "Could not parse booking_date '%s' in availability check: %s",
+                raw_dates,
+                exc,
             )
+            dispatcher.utter_message(response="utter_invalid_booking_dates")
             return []
 
         today = date.today()
         if check_out <= today:
-            dispatcher.utter_message(
-                text=(
-                    "I can only check availability for today or future dates. "
-                    "Could you share a new date range?"
-                )
-            )
+            dispatcher.utter_message(response="utter_past_booking_dates")
             return []
 
         preferred_view = tracker.get_slot("preferred_view")
@@ -567,34 +532,19 @@ class ActionSummarizeBooking(Action):
 
         try:
             num_guests = normalize_guest_count(raw_guests)
-        except ValueError as exc:
-            dispatcher.utter_message(
-                text=(
-                    "I need a valid number of guests before I can summarise the booking. "
-                    f"{exc}"
-                )
-            )
+        except ValueError:
+            dispatcher.utter_message(response="utter_invalid_guest_count")
             return events
 
         if not (check_in_str and check_out_str):
-            dispatcher.utter_message(
-                text=(
-                    "I seem to be missing your check-in and check-out dates. "
-                    "Could you repeat them for me?"
-                )
-            )
+            dispatcher.utter_message(response="utter_ask_booking_date")
             return events
 
         try:
             check_in = date.fromisoformat(str(check_in_str))
             check_out = date.fromisoformat(str(check_out_str))
         except ValueError:
-            dispatcher.utter_message(
-                text=(
-                    "Something went wrong when I stored your dates. "
-                    "Could you restate your check-in and check-out dates?"
-                )
-            )
+            dispatcher.utter_message(response="utter_invalid_booking_dates")
             return events
 
         rooms: List[Dict[str, Any]] = []
@@ -605,22 +555,12 @@ class ActionSummarizeBooking(Action):
                 logger.warning("Could not decode matching_rooms slot as JSON: %r", raw_rooms)
 
         if not rooms:
-            dispatcher.utter_message(
-                text=(
-                    "I couldn't see any available rooms to summarise. "
-                    "Let's check availability again first."
-                )
-            )
+            dispatcher.utter_message(response="utter_no_available_rooms")
             return events
 
         chosen = self._choose_room(preferred, rooms)
         if not chosen:
-            dispatcher.utter_message(
-                text=(
-                    "I couldn't match your preferred room to the options I found. "
-                    "Could you tell me which room you'd like by name or number?"
-                )
-            )
+            dispatcher.utter_message(response="utter_ask_preferred_room")
             return events
 
         include_breakfast = normalize_bool(include_breakfast_raw)
@@ -665,9 +605,9 @@ class ActionSummarizeBooking(Action):
             f"€{total:.2f} in total.{amenities_part}"
         )
 
-        dispatcher.utter_message(
-            text=summary + " Shall I confirm and make this booking?"
-        )
+        # Let the flow / YAML ask the explicit confirmation question; this
+        # action focuses on a factual summary of the booking.
+        dispatcher.utter_message(text=summary)
 
         floor_display = floor if floor is not None else "N/A"
 
@@ -718,66 +658,37 @@ class ActionCreateBooking(Action):
         check_out_str = tracker.get_slot("check_out_date")
 
         if confirm is False:
-            dispatcher.utter_message(
-                text=(
-                    "No problem, I won't create a booking. "
-                    "If you'd like to adjust the dates or room type, just let me know."
-                )
-            )
+            dispatcher.utter_message(response="utter_booking_not_confirmed")
             return events
 
         if confirm is None:
-            dispatcher.utter_message(
-                text="Before I proceed, please confirm if you'd like me to make this booking."
-            )
+            dispatcher.utter_message(response="utter_ask_confirm_booking")
             return events
 
         try:
             num_guests = normalize_guest_count(raw_guests)
-        except ValueError as exc:
-            dispatcher.utter_message(
-                text=(
-                    "I need a valid number of guests before I can create the booking. "
-                    f"{exc}"
-                )
-            )
+        except ValueError:
+            dispatcher.utter_message(response="utter_invalid_guest_count")
             return events
 
         if not guest_name:
-            dispatcher.utter_message(
-                text="Whose name should I put the booking under?"
-            )
+            dispatcher.utter_message(response="utter_ask_guest_name")
             return events
 
         if not (check_in_str and check_out_str):
-            dispatcher.utter_message(
-                text=(
-                    "I seem to be missing the dates. "
-                    "Could you remind me of your check-in and check-out dates?"
-                )
-            )
+            dispatcher.utter_message(response="utter_ask_booking_date")
             return events
 
         try:
             check_in = date.fromisoformat(str(check_in_str))
             check_out = date.fromisoformat(str(check_out_str))
         except ValueError:
-            dispatcher.utter_message(
-                text=(
-                    "The stored dates look invalid. "
-                    "Could you restate your check-in and check-out dates?"
-                )
-            )
+            dispatcher.utter_message(response="utter_invalid_booking_dates")
             return events
 
         today = date.today()
         if check_out <= today:
-            dispatcher.utter_message(
-                text=(
-                    "I can only create bookings for today or future dates. "
-                    "Let's pick a new check-in and check-out date before confirming."
-                )
-            )
+            dispatcher.utter_message(response="utter_past_booking_dates")
             return events
 
         rooms: List[Dict[str, Any]] = []
@@ -790,12 +701,7 @@ class ActionCreateBooking(Action):
                 )
 
         if not rooms:
-            dispatcher.utter_message(
-                text=(
-                    "I couldn't retrieve the room details I need to make the booking. "
-                    "Let's search availability again."
-                )
-            )
+            dispatcher.utter_message(response="utter_no_available_rooms")
             return events
 
         # Choose room consistently with ActionSummarizeBooking
@@ -817,12 +723,7 @@ class ActionCreateBooking(Action):
             chosen = rooms[0]
 
         if chosen["capacity"] < num_guests:
-            dispatcher.utter_message(
-                text=(
-                    "It looks like the selected room cannot hold that many guests. "
-                    "Let's search again for a room with enough capacity."
-                )
-            )
+            dispatcher.utter_message(response="utter_room_too_small")
             return events
 
         nights = (check_out - check_in).days
@@ -865,9 +766,7 @@ class ActionCreateBooking(Action):
                 conn.commit()
         except sqlite3.Error as exc:  # pragma: no cover - defensive
             logger.exception("Error inserting booking into DB: %s", exc)
-            dispatcher.utter_message(
-                text="Something went wrong while saving the booking. Please try again in a moment."
-            )
+            dispatcher.utter_message(response="utter_booking_save_error")
             return events
 
         message = (

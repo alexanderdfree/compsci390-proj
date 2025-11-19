@@ -19,6 +19,24 @@ flows:
       - action: action_create_booking
       - action: utter_booking_complete
 
+  check_availability:
+    description: Help callers quickly check what rooms are available for particular dates and number of guests, without creating a booking.
+    steps:
+      - collect: booking_number
+        description: number of guests to stay
+      - collect: booking_date
+        description: desired check-in and check-out dates to check availability for
+      - action: action_find_availability
+
+  review_booking_before_confirmation:
+    description: Summarise an in-progress booking and get a final yes/no confirmation before writing it to the database.
+    steps:
+      - action: action_summarize_booking
+      - collect: confirm_booking
+        description: whether to go ahead with the booking as summarised
+      - action: action_create_booking
+      - action: utter_booking_complete
+
 #!!! TODO
 
 # figure out how to add preferred guestname

@@ -117,6 +117,27 @@ responses:
   utter_ask_confirm_booking:
     - text: "Would you like me to confirm this booking and finalise it in our system?"
 
+  utter_invalid_guest_count:
+    - text: "I need a positive whole number of guests before I can continue. How many people will be staying?"
+
+  utter_invalid_booking_dates:
+    - text: "I couldn't quite understand those dates. Please tell me your check-in and check-out, for example '2025-11-20 to 2025-11-22'."
+
+  utter_past_booking_dates:
+    - text: "I can only help with bookings for today or future dates. Could you share a new check-in and check-out date?"
+
+  utter_no_available_rooms:
+    - text: "At the moment I don't have any rooms that match those details. You could try different dates, a shorter stay, or fewer guests."
+
+  utter_booking_not_confirmed:
+    - text: "No problem, I won't create a booking. If you'd like to adjust the dates, room type, or number of guests, just let me know."
+
+  utter_room_too_small:
+    - text: "It looks like the selected room cannot hold that many guests. Let's look for a different room with enough capacity."
+
+  utter_booking_save_error:
+    - text: "Something went wrong while saving the booking. Please try again in a moment or ask me to start over."
+
   utter_room_assignment: # need to
     - text: "The available room for {booking_date} is: {assigned_room}. Here is more information about the room: {room_info}."
 
