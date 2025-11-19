@@ -50,7 +50,9 @@ jobs:
             -v "${{ github.workspace }}:/app" \
             -w /app \
             europe-west3-docker.pkg.dev/rasa-releases/rasa-pro/rasa-pro:3.12.0-latest \
-            rasa test e2e
+            test e2e
+            
+
         # If you nested test cases under tests/some_subdir, use:
         #   rasa test e2e tests/some_subdir
 
