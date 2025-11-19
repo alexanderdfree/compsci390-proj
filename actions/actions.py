@@ -3,7 +3,8 @@ DATABASE SCHEMA:
 
 CREATE TABLE rooms ( room_id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, 
 size_sqm INTEGER NOT NULL, bed_type TEXT NOT NULL, capacity INTEGER NOT NULL, 
-price_per_night_eur REAL NOT NULL, bathroom_type TEXT CHECK(bathroom_type IN ('shower','bath')) NOT NULL, view TEXT CHECK(view IN ('street','garden')) NOT NULL, 
+price_per_night_eur REAL NOT NULL, bathroom_type TEXT CHECK(bathroom_type IN ('shower','bath')) NOT NULL, 
+view TEXT CHECK(view IN ('street','garden')) NOT NULL, 
 amenities TEXT, floor INTEGER, breakfast_fee_eur REAL NOT NULL );
 
 CREATE TABLE bookings ( booking_id INTEGER PRIMARY KEY, room_id INTEGER NOT NULL, 

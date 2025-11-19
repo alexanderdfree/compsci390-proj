@@ -22,7 +22,7 @@ jobs:
           # Use Rasa Pro image
           rasa_image: europe-west3-docker.pkg.dev/rasa-releases/rasa-pro/rasa-pro:3.12.0-latest
 
-          # Pro / LLM inputs
+          # Pro / LLM inputs (passed as env into the container)
           rasa_pro_license: ${{ secrets.RASA_LICENSE }}
           openai_api_key:   ${{ secrets.OPENAI_API_KEY }}
 
@@ -40,6 +40,19 @@ jobs:
           # Optional: publish summary comment if this push is tied to a PR
           publish_summary: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # NEW STEP: Run Rasa Pro E2E test cases in tests/e2e_test_cases.yml
+      - name: Run E2E test cases
+        run: |
+          docker run --rm \
+            -e RASA_PRO_LICENSE="${RASA_PRO_LICENSE}" \
+            -e OPENAI_API_KEY="${OPENAI_API_KEY}" \
+            -v "${{ github.workspace }}:/app" \
+            -w /app \
+            europe-west3-docker.pkg.dev/rasa-releases/rasa-pro/rasa-pro:3.12.0-latest \
+            rasa test e2e
+        # If you nested test cases under tests/some_subdir, use:
+        #   rasa test e2e tests/some_subdir
 
       - name: Upload model
         if: github.ref == 'refs/heads/copilot-playground'

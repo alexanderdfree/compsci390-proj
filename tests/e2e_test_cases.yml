@@ -9,7 +9,6 @@ version: "3.1"
 
 stories:
   - story: session_start_triggers_greeting
-    description: Agent should proactively greet the caller when a new session starts.
     steps:
       # Special session_start intent triggers the pattern_session_start flow
       # which should immediately execute utter_greet.
@@ -17,7 +16,6 @@ stories:
       - action: utter_greet
 
   - story: scenario1_new_booking_happy_path
-    description: Fully successful new booking with availability check, total cost summary, confirmation, and DB write.
     steps:
       - user: |
           Hi, I'd like to book a room at Ivy Gate.
@@ -52,7 +50,6 @@ stories:
       - action: utter_booking_complete
 
   - story: scenario1_negative_guest_count_graceful
-    description: Booking for a negative number of guests is rejected gracefully and the agent reprompts.
     steps:
       - user: |
           I want to book a room for -2 people from 2025-11-20 to 2025-11-22.
@@ -67,7 +64,6 @@ stories:
       # after that clarification.
 
   - story: scenario1_past_date_rejected
-    description: Bookings that are entirely in the past are rejected and the agent asks for new dates.
     steps:
       - user: |
           I'd like to book a room for 2 people from 2020-01-01 to 2020-01-03.
@@ -78,7 +74,6 @@ stories:
       - action: action_get_matching_rooms
 
   - story: scenario4_dalkey_activities_standalone
-    description: Caller without a booking asks about things to do in Dalkey.
     steps:
       - user: |
           What are some fun things to do in Dalkey?
@@ -89,7 +84,6 @@ stories:
       - action: utter_free_chitchat_response
 
   - story: scenario4_dalkey_activities_during_booking
-    description: While making a booking, the caller asks about things to do in Dalkey and the agent answers without breaking the flow.
     steps:
       - user: |
           Hi, I'd like to book a room.
