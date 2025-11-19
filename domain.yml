@@ -3,54 +3,54 @@ version: "3.1"
 actions:
   - action_get_matching_rooms
   - action_find_availability
+
 slots:
-  recipient:
-    type: text
-    mappings:
-      - type: from_llm
-  amount:
+  amount_ppl:
     type: float
     mappings:
       - type: from_llm
+      
   booking_number:
     type: float
     mappings:
       - type: from_llm
+
   booking_date:
     type: text
     mappings:
       - type: from_llm
+
   matching_rooms:
     type: text
     mappings:
       - type: controlled
-  preferred_room:
+
+  assigned_room:
     type: text
     mappings:
-      - type: from_llm
+      - type: controlled
+  
+  room_info:
+    type: text
+    mappings:
+      - type: controlled
     # can do array 
 
 responses:
   utter_greet:
-    - text: "Hello! How can I help you with Ivy Gate today?"
+    - text: "Hello! How can I help you with the Ivy Gate B&B today?"
 
-  utter_ask_recipient:
-    - text: "Who would you like to send money to?"
-
-  utter_ask_amount:
-    - text: "How much money would you like to send?"
-
-  utter_ask_booking_number:
+  utter_ask_amount_ppl:
     - text: "How many people would you like to book for?"
 
   utter_ask_booking_date:
     - text: "What nights would you like to stay with us?"
 
-  utter_ask_preferred_room:
-    - text: "The available rooms for {booking_date} are: {possible_rooms}. Which room would you like to book?"
+  utter_room_assignment: # need to
+    - text: "The available room for {booking_date} is: {assigned_room}. Here is more information about the room: {room_info}."
 
-  utter_transfer_complete:
-    - text: "All done. {amount} has been sent to {recipient}."
+  #utter_more_information:
+  #  - text: "All done. {amount} {recipient}."
 
   utter_booking_complete:
     - text: "Great! I made a booking for {booking_number} on {booking_date}. We look forward to seeing you then!"
@@ -61,9 +61,9 @@ responses:
         rephrase: True
         rephrase_prompt: |
           The following is a conversation with an AI assistant built with Rasa.
-          The assistant can help the user transfer money.
-          The assistant is helpful, creative, clever, and very friendly.
-          The user is making small talk, and the assistant should respond, keeping things light.
+          The assistant can help the user book a hotel room.
+          The assistant is helpful and very friendly.
+          The user is making a hotel reservation or asking questions, and the assistant should respond politely but factually.
           Context / previous conversation with the user:
           {{history}}
           {{current_input}}
