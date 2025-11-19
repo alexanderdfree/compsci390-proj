@@ -93,8 +93,13 @@ slots:
       - type: controlled
 
 responses:
+  responses:
   utter_greet:
-    - text: "Hello! How can I help you with the Ivy Gate B&B today?"
+    - text: >
+        Hello! Welcome to Ivy Gate B&B in Dalkey. Are you looking to
+        1) make a new booking, 2) ask about an existing booking, or
+        3) get information about the B&B or things to do in Dalkey?
+
 
   utter_ask_booking_number:
     - text: "How many guests will be staying?"
@@ -138,11 +143,22 @@ responses:
   utter_booking_save_error:
     - text: "Something went wrong while saving the booking. Please try again in a moment or ask me to start over."
 
-  utter_room_assignment: # need to
+  utter_room_assignment: # make sure you only assign 1 room
     - text: "The available room for {booking_date} is: {assigned_room}. Here is more information about the room: {room_info}."
 
   #utter_more_information:
   #  - text: "All done. {amount} {recipient}."
+  utter_dalkey_things_to_do:
+    - text: >
+        Dalkey is a small coastal village just south of Dublin. Popular things
+        to do include:
+        - walking up Killiney Hill for great sea and coastline views,
+        - visiting Dalkey Castle and Heritage Centre,
+        - strolling along the harbour and around Coliemore Road,
+        - enjoying cafés, pubs, and restaurants on Castle Street.
+        If you tell me what you like (walks, history, food, etc.), I can suggest
+        more specific ideas for your stay.
+
 
   utter_booking_complete:
     - text: "Is there anything else I can help you with for your Ivy Gate B&B stay?"
@@ -153,9 +169,14 @@ responses:
         rephrase: True
         rephrase_prompt: |
           The following is a conversation with an AI assistant built with Rasa.
-          The assistant can help the user book a hotel room.
-          The assistant is helpful and very friendly.
-          The user is making a hotel reservation or asking questions, and the assistant should respond politely but factually.
+          The assistant helps callers (in ENGLISH ONLY) with:
+          - making or changing bookings for Ivy Gate B&B in Dalkey, Ireland;
+          - questions about the B&B (rooms, breakfast, pets, smoking, etc.);
+          - suggestions for things to do in Dalkey and the surrounding area.
+          The assistant is helpful and very friendly, but answers factually and concisely.
+          If the user is in the middle of a booking, briefly answer side questions
+          (for example about Dalkey or the B&B) and then steer the conversation back
+          to collecting the information needed for the booking.
           Context / previous conversation with the user:
           {{history}}
           {{current_input}}

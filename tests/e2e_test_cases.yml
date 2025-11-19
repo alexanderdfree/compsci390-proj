@@ -1,70 +1,197 @@
 test_cases:
+  # --------------------------------------------------------------------------
+  # Session start & agent-initiated greeting
+  # --------------------------------------------------------------------------
   - test_case: "session_start_triggers_greeting"
     steps:
-      # action_session_start should cause utter_greet before the first user message.
-      # This matches the pattern shown in the docs for testing conversation start.
-      - utter: utter_greet
+      # Simulate the special session_start intent. The pattern_session_start flow
+      # should run and immediately execute utter_greet.
+      - user: "/session_start"
+        assertions:
+          - action_executed: "utter_greet"
 
+  # --------------------------------------------------------------------------
+  # Scenario 1: New booking (happy path)
+  # - Agent takes info, checks availability, summarizes with cost,
+  #   and only then books on explicit confirmation.
+  # --------------------------------------------------------------------------
   - test_case: "scenario1_new_booking_happy_path"
     steps:
       - user: |
           Hi, I'd like to book a room at Ivy Gate.
 
-      # After the user gives all booking details, the availability lookup should run.
+      # User provides all required booking info in one turn:
+      # number of guests, dates, and name.
       - user: |
           It will be 2 people from 2025-11-20 to 2025-11-22. My name is Alex.
         assertions:
+          # Core availability lookup against the bookings table.
           - action_executed: "action_get_matching_rooms"
 
-      # Caller picks an offered room and breakfast option; booking summary should be generated.
+      # User picks a specific room and breakfast option.
       - user: |
           I'd like the sea view double room with breakfast included.
         assertions:
+          # Booking is summarized with total cost and explicit confirmation question.
           - action_executed: "action_summarize_booking"
 
-      # Caller confirms; booking gets written and completion message is sent.
+      # Caller explicitly confirms they want to proceed.
       - user: |
           Yes, please confirm this booking.
         assertions:
+          # Booking is persisted to the bookings table and a confirmation is sent.
           - action_executed: "action_create_booking"
           - action_executed: "utter_booking_complete"
 
+  # --------------------------------------------------------------------------
+  # Scenario 1 robustness: invalid guest counts
+  # --------------------------------------------------------------------------
   - test_case: "scenario1_negative_guest_count_graceful"
     steps:
       - user: |
           I want to book a room for -2 people from 2025-11-20 to 2025-11-22.
         assertions:
-          # We at least assert that the availability action runs and handles this input,
-          # rather than the assistant crashing or ignoring it.
+          # Availability action should validate and respond gracefully, not crash.
           - action_executed: "action_get_matching_rooms"
 
+  # --------------------------------------------------------------------------
+  # Scenario 1 robustness: bookings in the past
+  # --------------------------------------------------------------------------
   - test_case: "scenario1_past_date_rejected"
     steps:
       - user: |
           I'd like to book a room for 2 people from 2020-01-01 to 2020-01-03.
         assertions:
-          # The same availability action should validate dates and reject past-only stays.
+          # The availability check should detect a stay wholly in the past and
+          # respond with a clarification asking for future dates.
           - action_executed: "action_get_matching_rooms"
 
+  - test_case: "scenario1_past_date_then_corrected"
+    steps:
+      # User first asks for an invalid, fully past stay.
+      - user: |
+          I'd like to book a room for 2 people from 2020-01-01 to 2020-01-03.
+        assertions:
+          - action_executed: "action_get_matching_rooms"
+
+      # After the agent explains the issue, the user corrects the dates.
+      - user: |
+          Sorry, that was wrong. Please book for 2 people from 2025-11-20 to 2025-11-22 instead. My name is Alex.
+        assertions:
+          # The agent should retry the availability lookup and move on to summarising.
+          - action_executed: "action_get_matching_rooms"
+          - action_executed: "action_summarize_booking"
+
+  # --------------------------------------------------------------------------
+  # English-only requirement
+  # --------------------------------------------------------------------------
+  - test_case: "non_english_input_graceful"
+    steps:
+      - user: |
+          Hola, me gustaría reservar una habitación para dos personas.
+        assertions:
+          # The agent should recognise the non-English input and respond with a
+          # clear instruction to continue in English (no crash, no nonsense).
+          - action_executed: "utter_english_only"
+
+  # --------------------------------------------------------------------------
+  # Scenario 2: Caller has a question about an existing booking
+  # --------------------------------------------------------------------------
+  - test_case: "scenario2_existing_booking_question"
+    steps:
+      - user: |
+          I already have a booking under the name Alex for 2025-11-20.
+          What time is check-in?
+        assertions:
+          # Agent should look up the existing booking in the bookings table
+          # and then answer using the stored information.
+          - action_executed: "action_get_booking_details"
+          - action_executed: "utter_existing_booking_answer"
+
+  - test_case: "scenario2_existing_booking_not_found"
+    steps:
+      - user: |
+          I think I have a booking for next weekend under the name Taylor,
+          but I'm not sure of the dates. Can you check if you have it on file?
+        assertions:
+          # Agent queries the bookings table and handles the "not found" case
+          # gracefully instead of hallucinating or crashing.
+          - action_executed: "action_get_booking_details"
+          - action_executed: "utter_booking_not_found"
+
+  # --------------------------------------------------------------------------
+  # Scenario 3: Caller without a booking asks about B&B details
+  # (breakfast, pets, smoking, room details, etc.)
+  # --------------------------------------------------------------------------
+  - test_case: "scenario3_bnb_details_no_booking"
+    steps:
+      - user: |
+          I don't have a booking yet, but do you allow pets and is breakfast included?
+        assertions:
+          # Routed through your knowledge / chitchat pattern and rephrased;
+          # we assert only the action, not the exact wording.
+          - action_executed: "utter_free_chitchat_response"
+
+  # --------------------------------------------------------------------------
+  # Scenario 4: Things to do in Dalkey (standalone)
+  # --------------------------------------------------------------------------
   - test_case: "scenario4_dalkey_activities_standalone"
     steps:
       - user: |
           What are some fun things to do in Dalkey?
         assertions:
-          # Route to the knowledge-style chitchat response, not the booking flow.
+          # pattern_search / pattern_chitchat should route this to the
+          # knowledge-style response template for Dalkey activities.
           - action_executed: "utter_free_chitchat_response"
 
+  # --------------------------------------------------------------------------
+  # Scenario 4 inside Scenario 1 (during new booking)
+  # --------------------------------------------------------------------------
   - test_case: "scenario4_dalkey_activities_during_booking"
     steps:
       - user: |
           Hi, I'd like to book a room.
-        assertions:
-          # Initial booking request should still greet / acknowledge.
-          - action_executed: "utter_greet"
 
+      # Before providing all booking details, caller diverts to ask about activities.
       - user: |
           While I'm staying, what can I do in Dalkey?
         assertions:
-          # Chitchat about local activities should be handled by the chitchat pattern/utterance,
-          # without breaking the main booking capability.
+          # Must still be handled by the chitchat / search pattern without
+          # breaking the main booking capability.
+          - action_executed: "utter_free_chitchat_response"
+
+  # --------------------------------------------------------------------------
+  # Scenario 4 inside Scenario 2 (existing booking)
+  # --------------------------------------------------------------------------
+  - test_case: "scenario4_dalkey_activities_during_existing_booking_question"
+    steps:
+      - user: |
+          I already have a booking under Alex for next month.
+          Could you remind me of the room type?
+        assertions:
+          # First handle the existing-booking question.
+          - action_executed: "action_get_booking_details"
+
+      - user: |
+          Also, what are some nice things to do in Dalkey while I'm there?
+        assertions:
+          # Then answer the Dalkey activities question via knowledge response.
+          - action_executed: "utter_free_chitchat_response"
+
+  # --------------------------------------------------------------------------
+  # Scenario 4 inside Scenario 3 (general B&B info)
+  # --------------------------------------------------------------------------
+  - test_case: "scenario4_dalkey_activities_during_bnb_details"
+    steps:
+      - user: |
+          Before I book, can you tell me if the rooms are quiet and if there is parking?
+        assertions:
+          # B&B details come from your knowledge / FAQ mechanisms.
+          - action_executed: "utter_free_chitchat_response"
+
+      - user: |
+          And what are some fun things to do in Dalkey nearby?
+        assertions:
+          # Follow-up Dalkey activities question should also hit the same
+          # knowledge-style response path.
           - action_executed: "utter_free_chitchat_response"

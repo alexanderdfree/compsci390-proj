@@ -1,70 +1,62 @@
 flows:
   make_booking:
-    description: Help users book a room at Ivy Gate B&B given dates and number of guests, including a final confirmation step.
+    description: >
+      Scenario 1: Help callers make a NEW booking at Ivy Gate B&B.
+      Collect number of guests and stay dates, check availability, let them
+      choose a room and breakfast option, summarise the total price, then
+      ONLY create the booking after an explicit final confirmation.
     steps:
       - collect: booking_number
-        description: number of people looking to book
+        description: >
+          Number of people staying. Must be a positive whole number; if the
+          caller says something invalid (e.g. "-2", "zero", or a non-number),
+          explain the issue and ask again politely.
       - collect: booking_date
-        description: desired check-in and check-out dates for the stay
+        description: >
+          Desired check-in and check-out dates for the stay. If the dates are
+          in the past or the check-out is not after the check-in, explain the
+          problem and ask for new dates.
       - collect: guest_name
-        description: full name to put the booking under
+        description: >
+          Full name to put the booking under.
       - action: action_get_matching_rooms
       - collect: preferred_room
-        description: room choice given the list of available rooms
+        description: >
+          Room choice from the list of available rooms that can actually
+          accommodate the number of guests.
       - collect: include_breakfast
-        description: whether the guest wants breakfast included with the stay
+        description: >
+          Whether the guest wants breakfast included with the stay.
       - action: action_summarize_booking
       - collect: confirm_booking
-        description: final confirmation from the guest to actually create the booking with the quoted total cost
+        description: >
+          Final YES/NO confirmation from the caller to actually create the
+          booking with the quoted total cost.
       - action: action_create_booking
       - action: utter_booking_complete
 
   check_availability:
-    description: Help callers quickly check what rooms are available for particular dates and number of guests, without creating a booking.
+    description: >
+      Help callers quickly check what rooms are available for particular dates
+      and number of guests, WITHOUT creating a booking.
     steps:
       - collect: booking_number
-        description: number of guests to stay
+        description: >
+          Number of guests who would stay.
       - collect: booking_date
-        description: desired check-in and check-out dates to check availability for
+        description: >
+          Desired check-in and check-out dates to check availability for.
       - action: action_find_availability
 
   review_booking_before_confirmation:
-    description: Summarise an in-progress booking and get a final yes/no confirmation before writing it to the database.
+    description: >
+      Summarise an in-progress booking and get a final YES/NO confirmation
+      before writing it to the database. Use this when the caller asks to
+      review their booking details once more.
     steps:
       - action: action_summarize_booking
       - collect: confirm_booking
-        description: whether to go ahead with the booking as summarised
+        description: >
+          Whether to go ahead with the booking as summarised.
       - action: action_create_booking
       - action: utter_booking_complete
-
-#!!! TODO
-
-# figure out how to add preferred guestname
-# answer questions or change existing booking
-# first get the rooms 
-# need to loop thru entire list of bookings
-# give the person the first available room that meets the criteria
-#then they gave up
-
-# slots 
-
-#maintain a dictionary slot that maintains a list of the SQL columns. 
-#each entry maps sqlCOLname -> preferred value
-#initially starts unfilled but fills according to user preferences
-#if the slot is set, then that is used to filter for a room
-
-
-
-#if the confirmation step fails
-#how to figure out which columns to update and why
-#how to figure out natural text
-#but could be in the form of an equality attached to an integer. 
-
-
-
-
-
-  
-
-
-#! TODO change existing booking

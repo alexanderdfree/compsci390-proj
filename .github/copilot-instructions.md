@@ -50,11 +50,6 @@ First, prioritize scenario 1 until its fully implemented.
 - For scenario 1, compute availability by filtering `rooms` by capacity and excluding rooms that already have overlapping `bookings` in the requested date range.
 - When inserting bookings, always validate: positive guest count, future or current dates (no bookings wholly in the past), and that selected room capacity ≥ requested guests.
 
-## Flows, slots, and responses
-- Booking flow: `data/flows.yml` → `make_booking` currently collects `booking_number` (guest count) and `booking_date`, calls `action_get_matching_rooms`, then collects `preferred_room` before `utter_booking_complete`; extend this flow rather than adding ad-hoc logic.
-- Slots in `domain.yml` tagged `from_llm` (for example `booking_number`, `booking_date`) are extracted by the LLM; treat them as the single source of truth when querying or writing to the DB.
-- Slots tagged `controlled` (for example `matching_rooms`, `assigned_room`, `room_info`) should be set only from custom actions and used to populate response templates like `utter_room_assignment`.
-- Small-talk and knowledge questions (including "things to do in Dalkey") are handled via `data/patterns.yml` flows (`pattern_chitchat`, `pattern_search`) and `utter_free_chitchat_response` with `rephrase` metadata.
 
 ## Implementation conventions
 - Use Python 3 and `rasa_sdk` idioms in `actions/actions.py`: implement `run(self, dispatcher, tracker, domain)` to read slots, talk to SQLite, and return `SlotSet` events.
