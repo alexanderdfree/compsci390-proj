@@ -96,11 +96,26 @@ responses:
   utter_greet:
     - text: "Hello! How can I help you with the Ivy Gate B&B today?"
 
+  utter_ask_booking_number:
+    - text: "How many guests will be staying?"
+
   utter_ask_amount_ppl:
     - text: "How many people would you like to book for?"
 
   utter_ask_booking_date:
     - text: "What nights would you like to stay with us?"
+
+  utter_ask_guest_name:
+    - text: "What name should I put the booking under?"
+
+  utter_ask_preferred_room:
+    - text: "Which of the available rooms would you like to book?"
+
+  utter_ask_include_breakfast:
+    - text: "Would you like to include breakfast with your stay?"
+
+  utter_ask_confirm_booking:
+    - text: "Would you like me to confirm this booking and finalise it in our system?"
 
   utter_room_assignment: # need to
     - text: "The available room for {booking_date} is: {assigned_room}. Here is more information about the room: {room_info}."
