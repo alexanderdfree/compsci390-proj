@@ -4,16 +4,14 @@ flows:
       Flow for starting the conversation. The bot should greet the caller
       and briefly explain how it can help.
     name: pattern session start
-    nlu_trigger:
-      - intent: session_start
     steps:
       - action: utter_greet
 
   pattern_make_booking:
     description: >
       Scenario 1: Caller wants to make a NEW booking at Ivy Gate B&B.
-      Use this when the user asks to book or reserve a room, or when they
-      give dates and number of guests for a new stay.
+      Use when the user asks to book/reserve a room or provides dates
+      and number of guests for a new stay.
     name: pattern make booking
     steps:
       - flow: make_booking
@@ -21,17 +19,24 @@ flows:
   pattern_check_availability:
     description: >
       Caller only wants to CHECK AVAILABILITY and prices for specific dates
-      and number of guests, without actually creating a booking yet.
+      and number of guests, without creating a booking yet.
     name: pattern check availability
     steps:
       - flow: check_availability
 
+  pattern_lookup_booking:
+    description: >
+      Scenario 2: Caller has questions about an EXISTING booking.
+      Use when the user mentions they have a booking or provides a booking ID.
+    name: pattern lookup booking
+    steps:
+      - flow: lookup_booking
+
   pattern_bnb_info:
     description: >
-      Scenario 3: Caller without a booking asks about details of the B&B itself:
-      breakfast options, smoking policy, bringing pets, room features,
-      check-in/check-out times, parking, Wi-Fi, etc.
-      Use this instead of starting a booking flow when the user is just asking questions.
+      Scenario 3: Caller asks about B&B details without making a booking:
+      breakfast options, smoking policy, pets, room features,
+      check-in/out times, parking, Wi-Fi, etc.
     name: pattern bnb info
     steps:
       - action: utter_free_chitchat_response
@@ -40,27 +45,27 @@ flows:
     description: >
       Scenario 4: Caller asks about THINGS TO DO in Dalkey or nearby:
       attractions, walks, restaurants, cafés, pubs, views, etc.
-      This can appear on its own OR in the middle of another flow. After answering,
-      continue the previous booking or question flow.
+      Can appear alone OR during another flow. After answering,
+      continue the previous booking flow if applicable.
     name: pattern dalkey activities
     steps:
       - action: utter_dalkey_things_to_do
 
   pattern_chitchat:
     description: >
-      Conversation repair flow for clearly off-topic or casual chit-chat
-      that should not disrupt the main booking conversation.
-      Do NOT use this for greetings or for questions about bookings, the B&B,
-      or Dalkey (those have dedicated patterns).
+      Conversation repair flow for clearly off-topic or casual chat
+      that shouldn't disrupt the main booking conversation.
+      Do NOT use for greetings, bookings, B&B questions, or Dalkey
+      (those have dedicated patterns).
     name: pattern chitchat
     steps:
       - action: utter_free_chitchat_response
 
   pattern_search:
     description: >
-      Factual or knowledge-based questions that are not directly about a booking
-      but are still related to travel or general information, where no more
-      specific pattern applies. For example, generic travel questions.
+      Factual or knowledge-based questions not directly about bookings
+      but still travel-related or general information where no
+      specific pattern applies.
     name: pattern search
     steps:
       - action: utter_free_chitchat_response

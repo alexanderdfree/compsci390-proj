@@ -5,15 +5,18 @@ actions:
   - action_find_availability
   - action_summarize_booking
   - action_create_booking
+  - action_lookup_booking
 
 slots:
-  amount_ppl:
-    type: float
+  num_guests:
+    type: int
+    min_value: 1
+    max_value: 10
     mappings:
       - type: from_llm
 
-  booking_number:
-    type: float
+  booking_id_lookup:
+    type: text
     mappings:
       - type: from_llm
 
@@ -65,50 +68,45 @@ slots:
   matching_rooms:
     type: text
     mappings:
-      - type: controlled
+      - type: custom
 
   assigned_room:
     type: text
     mappings:
-      - type: controlled
+      - type: custom
 
   room_info:
     type: text
     mappings:
-      - type: controlled
+      - type: custom
 
   check_in_date:
     type: text
     mappings:
-      - type: controlled
+      - type: custom
 
   check_out_date:
     type: text
     mappings:
-      - type: controlled
+      - type: custom
 
   booking_id:
     type: text
     mappings:
-      - type: controlled
+      - type: custom
 
 responses:
-  responses:
   utter_greet:
     - text: >
         Hello! Welcome to Ivy Gate B&B in Dalkey. Are you looking to
         1) make a new booking, 2) ask about an existing booking, or
         3) get information about the B&B or things to do in Dalkey?
 
-
-  utter_ask_booking_number:
+  utter_ask_num_guests:
     - text: "How many guests will be staying?"
 
-  utter_ask_amount_ppl:
-    - text: "How many people would you like to book for?"
-
   utter_ask_booking_date:
-    - text: "What nights would you like to stay with us?"
+    - text: "What nights would you like to stay with us? Please provide your check-in and check-out dates."
 
   utter_ask_guest_name:
     - text: "What name should I put the booking under?"
@@ -122,46 +120,48 @@ responses:
   utter_ask_confirm_booking:
     - text: "Would you like me to confirm this booking and finalise it in our system?"
 
+  utter_ask_booking_id_lookup:
+    - text: "Could you provide your booking ID or the name the booking was made under?"
+
   utter_invalid_guest_count:
-    - text: "I need a positive whole number of guests before I can continue. How many people will be staying?"
+    - text: "I need a positive whole number of guests (1-10) before I can continue. How many people will be staying?"
 
   utter_invalid_booking_dates:
-    - text: "I couldn't quite understand those dates. Please tell me your check-in and check-out, for example '2025-11-20 to 2025-11-22'."
+    - text: "I couldn't quite understand those dates. Please tell me your check-in and check-out dates, for example 'November 20 to November 22' or '2025-11-20 to 2025-11-22'."
 
   utter_past_booking_dates:
-    - text: "I can only help with bookings for today or future dates. Could you share a new check-in and check-out date?"
+    - text: "I can only help with bookings for today or future dates. Could you share new check-in and check-out dates?"
 
   utter_no_available_rooms:
-    - text: "At the moment I don't have any rooms that match those details. You could try different dates, a shorter stay, or fewer guests."
+    - text: "I'm afraid we don't have any rooms available that match your requirements. You could try different dates, a shorter stay, or fewer guests."
 
   utter_booking_not_confirmed:
-    - text: "No problem, I won't create a booking. If you'd like to adjust the dates, room type, or number of guests, just let me know."
+    - text: "No problem, I won't create the booking. If you'd like to adjust the dates, room type, or number of guests, just let me know."
 
   utter_room_too_small:
-    - text: "It looks like the selected room cannot hold that many guests. Let's look for a different room with enough capacity."
+    - text: "The selected room cannot accommodate that many guests. Let's look for a different room with enough capacity."
 
   utter_booking_save_error:
-    - text: "Something went wrong while saving the booking. Please try again in a moment or ask me to start over."
+    - text: "Something went wrong while saving the booking. Please try again in a moment or let me know if you'd like to start over."
 
-  utter_room_assignment: # make sure you only assign 1 room
-    - text: "The available room for {booking_date} is: {assigned_room}. Here is more information about the room: {room_info}."
+  utter_room_assignment:
+    - text: "The available room for {booking_date} is: {assigned_room}. Here's more information about the room: {room_info}."
 
-  #utter_more_information:
-  #  - text: "All done. {amount} {recipient}."
   utter_dalkey_things_to_do:
     - text: >
-        Dalkey is a small coastal village just south of Dublin. Popular things
-        to do include:
-        - walking up Killiney Hill for great sea and coastline views,
-        - visiting Dalkey Castle and Heritage Centre,
-        - strolling along the harbour and around Coliemore Road,
-        - enjoying cafés, pubs, and restaurants on Castle Street.
-        If you tell me what you like (walks, history, food, etc.), I can suggest
-        more specific ideas for your stay.
-
+        Dalkey is a charming coastal village just south of Dublin. Popular things to do include:
+        - Walking up Killiney Hill for spectacular sea and coastline views
+        - Visiting Dalkey Castle and Heritage Centre
+        - Strolling along the harbour and around Coliemore Road
+        - Enjoying cafés, pubs, and restaurants on Castle Street
+        
+        If you tell me what you enjoy (walks, history, food, etc.), I can suggest more specific ideas for your stay!
 
   utter_booking_complete:
-    - text: "Is there anything else I can help you with for your Ivy Gate B&B stay?"
+    - text: "Your booking has been confirmed! Is there anything else I can help you with for your Ivy Gate B&B stay?"
+
+  utter_booking_not_found:
+    - text: "I couldn't find a booking with that information. Could you double-check the booking ID or name?"
 
   utter_free_chitchat_response:
     - text: "placeholder"
@@ -170,14 +170,20 @@ responses:
         rephrase_prompt: |
           The following is a conversation with an AI assistant built with Rasa.
           The assistant helps callers (in ENGLISH ONLY) with:
-          - making or changing bookings for Ivy Gate B&B in Dalkey, Ireland;
-          - questions about the B&B (rooms, breakfast, pets, smoking, etc.);
-          - suggestions for things to do in Dalkey and the surrounding area.
-          The assistant is helpful and very friendly, but answers factually and concisely.
+          - making or changing bookings for Ivy Gate B&B in Dalkey, Ireland
+          - questions about existing bookings
+          - information about the B&B (rooms, breakfast, pets, smoking, etc.)
+          - suggestions for things to do in Dalkey and the surrounding area
+          
+          The assistant is helpful and friendly, but answers factually and concisely.
           If the user is in the middle of a booking, briefly answer side questions
-          (for example about Dalkey or the B&B) and then steer the conversation back
-          to collecting the information needed for the booking.
+          and then steer the conversation back to completing the booking.
+          
           Context / previous conversation with the user:
           {{history}}
           {{current_input}}
           Suggested AI Response:
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

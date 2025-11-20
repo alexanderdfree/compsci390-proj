@@ -4,35 +4,52 @@ flows:
       Scenario 1: Help callers make a NEW booking at Ivy Gate B&B.
       Collect number of guests and stay dates, check availability, let them
       choose a room and breakfast option, summarise the total price, then
-      ONLY create the booking after an explicit final confirmation.
+      ONLY create the booking after explicit final confirmation.
     steps:
-      - collect: booking_number
+      - collect: num_guests
         description: >
-          Number of people staying. Must be a positive whole number; if the
-          caller says something invalid (e.g. "-2", "zero", or a non-number),
+          Number of people staying. Must be a positive integer between 1-10.
+          If the caller provides an invalid value (negative, zero, or non-number),
           explain the issue and ask again politely.
+        utter: utter_ask_num_guests
+        rejections:
+          - if: "not (1 <= slots.num_guests <= 10)"
+            utter: utter_invalid_guest_count
+            
       - collect: booking_date
         description: >
-          Desired check-in and check-out dates for the stay. If the dates are
-          in the past or the check-out is not after the check-in, explain the
-          problem and ask for new dates.
+          Desired check-in and check-out dates for the stay. Dates must be
+          today or in the future, and check-out must be after check-in.
+        utter: utter_ask_booking_date
+        
       - collect: guest_name
         description: >
           Full name to put the booking under.
+        utter: utter_ask_guest_name
+        
       - action: action_get_matching_rooms
+      
       - collect: preferred_room
         description: >
-          Room choice from the list of available rooms that can actually
-          accommodate the number of guests.
+          Room choice from the list of available rooms that can accommodate
+          the specified number of guests.
+        utter: utter_ask_preferred_room
+        
       - collect: include_breakfast
         description: >
-          Whether the guest wants breakfast included with the stay.
+          Whether the guest wants breakfast included with their stay.
+        utter: utter_ask_include_breakfast
+        
       - action: action_summarize_booking
+      
       - collect: confirm_booking
         description: >
-          Final YES/NO confirmation from the caller to actually create the
-          booking with the quoted total cost.
+          Final YES/NO confirmation from the caller to create the booking
+          with the quoted total cost.
+        utter: utter_ask_confirm_booking
+        
       - action: action_create_booking
+      
       - action: utter_booking_complete
 
   check_availability:
@@ -40,23 +57,44 @@ flows:
       Help callers quickly check what rooms are available for particular dates
       and number of guests, WITHOUT creating a booking.
     steps:
-      - collect: booking_number
+      - collect: num_guests
         description: >
           Number of guests who would stay.
+        utter: utter_ask_num_guests
+        rejections:
+          - if: "not (1 <= slots.num_guests <= 10)"
+            utter: utter_invalid_guest_count
+            
       - collect: booking_date
         description: >
           Desired check-in and check-out dates to check availability for.
+        utter: utter_ask_booking_date
+        
       - action: action_find_availability
+
+  lookup_booking:
+    description: >
+      Scenario 2: Help callers find and get information about an existing booking.
+    steps:
+      - collect: booking_id_lookup
+        description: >
+          Booking ID or guest name to look up the existing booking.
+        utter: utter_ask_booking_id_lookup
+        
+      - action: action_lookup_booking
 
   review_booking_before_confirmation:
     description: >
-      Summarise an in-progress booking and get a final YES/NO confirmation
-      before writing it to the database. Use this when the caller asks to
-      review their booking details once more.
+      Summarise an in-progress booking and get final YES/NO confirmation
+      before writing it to the database.
     steps:
       - action: action_summarize_booking
+      
       - collect: confirm_booking
         description: >
-          Whether to go ahead with the booking as summarised.
+          Whether to proceed with the booking as summarised.
+        utter: utter_ask_confirm_booking
+        
       - action: action_create_booking
+      
       - action: utter_booking_complete
