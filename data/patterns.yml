@@ -16,7 +16,7 @@ flows:
       and number of guests for a new stay.
     name: pattern make booking
     steps:
-      - flow: make_booking
+      - link: make_booking
 
   pattern_check_availability:
     description: >
@@ -24,7 +24,7 @@ flows:
       and number of guests, without creating a booking yet.
     name: pattern check availability
     steps:
-      - flow: check_availability
+      - link: check_availability
 
   pattern_lookup_booking:
     description: >
