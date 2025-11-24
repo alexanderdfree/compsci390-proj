@@ -3,10 +3,10 @@ version: "3.1"
 actions:
   - action_get_matching_rooms
   - action_get_available_room
-  #- action_find_availability
+  - action_find_availability
   - action_summarize_booking
   - action_make_booking
-  #- action_lookup_booking
+  - action_lookup_booking
 
 slots:
   num_guests:
@@ -16,16 +16,21 @@ slots:
     mappings:
       - type: from_llm
 
-  booking_date:
-    type: text
-    mappings:
-      - type: from_llm
-
   guest_name:
     type: text
     mappings:
       - type: from_llm
 
+
+  include_breakfast:
+      type: bool
+      mappings:
+        - type: from_llm
+
+  room_id:
+    type: text
+    mappings:
+      - type: custom
 
   preferred_view:
     type: text
@@ -47,15 +52,12 @@ slots:
     mappings:
       - type: from_llm
 
-  include_breakfast:
-      type: bool
-      mappings:
-        - type: from_llm
+  
 
-  preferred_room:
-    type: text
-    mappings:
-      - type: from_llm
+  #preferred_room:
+  #  type: text
+  #  mappings:
+  #    - type: from_llm
 
 
   booking_id_lookup:
@@ -85,12 +87,12 @@ slots:
   check_in_date:
     type: text
     mappings:
-      - type: custom
+      - type: from_llm
 
   check_out_date:
     type: text
     mappings:
-      - type: custom
+      - type: from_llm
 
   confirm_booking:
     type: bool
@@ -112,7 +114,7 @@ responses:
   utter_ask_num_guests:
     - text: "How many guests will be staying?"
 
-  utter_ask_booking_date:
+  utter_ask_check_in_date:
     - text: "What nights would you like to stay with us? Please provide your check-in and check-out dates."
 
   utter_ask_guest_name:
@@ -152,7 +154,7 @@ responses:
     - text: "Something went wrong while saving the booking. Please try again in a moment or let me know if you'd like to start over."
 
   utter_room_assignment:
-    - text: "The available room for {booking_date} is: {assigned_room}. Here's more information about the room: {room_info}."
+    - text: "The available room from {check_in_date} to {check_out_date} is: {assigned_room}. Here's more information about the room: {room_info}."
 
   utter_dalkey_things_to_do:
     - text: >
@@ -165,7 +167,7 @@ responses:
         If you tell me what you enjoy (walks, history, food, etc.), I can suggest more specific ideas for your stay!
 
   utter_booking_complete:
-    - text: "Your booking has been confirmed! Is there anything else I can help you with for your Ivy Gate B&B stay?"
+    - text: "Your booking {booking_id} has been confirmed! Is there anything else I can help you with for your Ivy Gate B&B stay?"
 
   utter_booking_not_found:
     - text: "I couldn't find a booking with that information. Could you double-check the booking ID or name?"

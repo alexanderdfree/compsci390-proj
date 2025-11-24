@@ -79,7 +79,7 @@ class ActionGetAvailableRoom(Action):
         available_room = mycur.fetchone()
         print("room_id: {0}, room_name: {1}".format(available_room[0], available_room[1]))
         #print(possible_rooms)
-        return [SlotSet("room_id", available_room[0]), SlotSet("room_info", available_room[1])]
+        return [SlotSet("assigned_room", available_room[0]), SlotSet("room_info", available_room[1])]
 
 class ActionMakeBooking(Action):
     def name(self) -> Text:
