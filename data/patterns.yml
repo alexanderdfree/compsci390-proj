@@ -4,6 +4,8 @@ flows:
       Flow for starting the conversation. The bot should greet the caller
       and briefly explain how it can help.
     name: pattern session start
+    nlu_trigger:
+      - intent: session_start
     steps:
       - action: utter_greet
 
@@ -30,7 +32,7 @@ flows:
       Use when the user mentions they have a booking or provides a booking ID.
     name: pattern lookup booking
     steps:
-      - flow: lookup_booking
+      - action: action_summarize_booking
 
   pattern_bnb_info:
     description: >

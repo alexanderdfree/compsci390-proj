@@ -9,7 +9,7 @@ actions:
 
 slots:
   num_guests:
-    type: int
+    type: float
     min_value: 1
     max_value: 10
     mappings:
@@ -184,6 +184,3 @@ responses:
           {{current_input}}
           Suggested AI Response:
 
-session_config:
-  session_expiration_time: 60
-  carry_over_slots_to_new_session: true
