@@ -1,3 +1,4 @@
+#too many patterns here. should only really have 5 at max
 flows:
   pattern_session_start:
     description: >

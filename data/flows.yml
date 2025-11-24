@@ -13,7 +13,7 @@ flows:
           explain the issue and ask again politely.
         utter: utter_ask_num_guests
         rejections:
-          - if: "slots.num_guests < 1 or slots.num_guests > 10"
+          - if: "slots.num_guests < 1.0 or slots.num_guests > 10.0"
             utter: utter_invalid_guest_count
 
       - collect: booking_date
@@ -27,16 +27,15 @@ flows:
           Full name to put the booking under.
         utter: utter_ask_guest_name
 
-      - collect: preferred_room
-        description: >
-          Room choice from the list of available rooms that can accommodate
-          the specified number of guests.
-        utter: utter_ask_preferred_room
-
       - collect: include_breakfast
         description: >
           Whether the guest wants breakfast included with their stay.
         utter: utter_ask_include_breakfast
+
+      - collect: preferred_room
+          description: >
+            Room choice, if any, from the list of available rooms that can accommodate the specified number of guests.
+        utter: utter_ask_preferred_room
 
       - action: action_get_matching_rooms
 
