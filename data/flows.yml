@@ -32,10 +32,10 @@ flows:
           Whether the guest wants breakfast included with their stay.
         utter: utter_ask_include_breakfast
 
-      - collect: preferred_room
-        description: >
-          Room choice, if any, from the list of available rooms that can accommodate the specified number of guests.
-        utter: utter_ask_preferred_room
+      #- collect: preferred_room
+      #  description: >
+      #    Room choice, if any, from the list of available rooms that can accommodate the specified number of guests.
+      #  utter: utter_ask_preferred_room
 
       - action: action_get_matching_rooms
 
