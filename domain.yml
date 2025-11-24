@@ -2,10 +2,11 @@ version: "3.1"
 
 actions:
   - action_get_matching_rooms
-  - action_find_availability
+  - action_get_available_room
+  #- action_find_availability
   - action_summarize_booking
-  - action_create_booking
-  - action_lookup_booking
+  - action_make_booking
+  #- action_lookup_booking
 
 slots:
   num_guests:
@@ -15,15 +16,16 @@ slots:
     mappings:
       - type: from_llm
 
-  booking_id_lookup:
-    type: text
-    mappings:
-      - type: from_llm
-
   booking_date:
     type: text
     mappings:
       - type: from_llm
+
+  guest_name:
+    type: text
+    mappings:
+      - type: from_llm
+
 
   preferred_view:
     type: text
@@ -45,30 +47,30 @@ slots:
     mappings:
       - type: from_llm
 
-  guest_name:
-    type: text
-    mappings:
-      - type: from_llm
+  include_breakfast:
+      type: bool
+      mappings:
+        - type: from_llm
 
   preferred_room:
     type: text
     mappings:
       - type: from_llm
 
-  include_breakfast:
-    type: bool
+
+  booking_id_lookup:
+    type: text
     mappings:
       - type: from_llm
 
-  confirm_booking:
-    type: bool
-    mappings:
-      - type: from_llm
+
+
 
   matching_rooms:
     type: text
     mappings:
       - type: custom
+
 
   assigned_room:
     type: text
@@ -89,6 +91,11 @@ slots:
     type: text
     mappings:
       - type: custom
+
+  confirm_booking:
+    type: bool
+    mappings:
+      - type: from_llm
 
   booking_id:
     type: text

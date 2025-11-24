@@ -19,7 +19,8 @@ flows:
       - collect: booking_date
         description: >
           Desired check-in and check-out dates for the stay. Dates must be
-          today or in the future, and check-out must be after check-in.
+          today or in the future, and check-out must be after check-in. Set the slots booking_date,
+          check_in_date, and check_out_date accordingly.
         utter: utter_ask_booking_date
 
       - collect: guest_name
@@ -32,10 +33,19 @@ flows:
           Whether the guest wants breakfast included with their stay.
         utter: utter_ask_include_breakfast
 
-      #- collect: preferred_room
-      #  description: >
-      #    Room choice, if any, from the list of available rooms that can accommodate the specified number of guests.
-      #  utter: utter_ask_preferred_room
+      - collect: preferred_room
+        description: >
+          Ask in one turn about room preferences like view, bed type,
+          bathroom type (shower or bath), maximum price per night, whether
+          they want breakfast included, and any specific room name.
+          Use the LLM to fill the following slots *if mentioned*:
+          - preferred_view
+          - preferred_bed_type
+          - preferred_bathroom_type
+          - max_price_per_night
+          - preferred_room
+          Leave any of these slots empty if the user doesn't specify them.
+        utter: utter_ask_room_preferences
 
       - action: action_get_matching_rooms
 
