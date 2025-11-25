@@ -27,6 +27,11 @@ slots:
       mappings:
         - type: from_llm
 
+
+  room_available:
+    type: bool
+    mappings:
+      - type: controlled
   room_id:
     type: text
     mappings:

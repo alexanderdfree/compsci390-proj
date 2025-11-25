@@ -256,24 +256,28 @@ class ActionGetAvailableRoom(Action):
         conn = sqlite3.connect("db/IvyGate.db")
         mycur = conn.cursor()
         sql = """
-            WITH booked_rooms AS
-                (SELECT DISTINCT room_id
-                FROM bookings 
-                WHERE (date(?) <= check_in AND date(?) > check_out) 
-                OR (date(?) < check_in AND date(?) >= check_out) 
-                OR (date(?) >= check_in AND date(?) <= check_out)
-                ) 
-            SELECT room_id, name FROM rooms WHERE room_id NOT IN booked_rooms
-            AND capacity >= ?;
+            SELECT r.room_id, r.name, r.size_sqm, r.bed_type, r.capacity,
+                r.price_per_night_eur, r.bathroom_type, r.view, r.amenities,
+                r.floor, r.breakfast_fee_eur
+            FROM rooms r
+            WHERE r.capacity >= ?
+            AND r.room_id NOT IN (
+                SELECT b.room_id FROM bookings b
+                WHERE date(?) < date(b.check_out) AND date(b.check_in) < date(?)
+            )
+            LIMIT 1
         """
-        mycur.execute(sql, (date_checkin, date_checkout, date_checkin, date_checkout, date_checkin, date_checkout, number_of_customers))
+        mycur.execute(sql, (number_of_customers, date_checkin, date_checkout))
         available_room = mycur.fetchone()
-        #if available_room is None:
-        #    dispatcher.utter_message(text="Sorry, no rooms are available for those dates and guest count.")
-        #    return [SlotSet("assigned_room", None), SlotSet("room_info", None)]
+        if available_room is None:
+            return [
+                SlotSet("assigned_room", None),
+                SlotSet("room_info", None),
+                SlotSet("room_available", False),
+            ]
         print("room_id: {0}, room_name: {1}".format(available_room[0], available_room[1]))
-        #print(possible_rooms)
-        return [SlotSet("assigned_room", available_room[0]), SlotSet("room_info", available_room[1])]
+        # print(possible_rooms)
+        return [SlotSet("assigned_room", available_room[0]), SlotSet("room_info", available_room[1]), SlotSet("room_available", True)]
 
 class ActionMakeBooking(Action):
     def name(self) -> Text:
