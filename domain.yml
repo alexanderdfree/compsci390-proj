@@ -1,9 +1,9 @@
 version: "3.1"
 
 actions:
-  - action_get_matching_rooms
+ # - action_get_matching_rooms
   - action_get_available_room
-  - action_find_availability
+  # - action_find_availability
   - action_summarize_booking
   - action_make_booking
   - action_lookup_booking
@@ -30,7 +30,7 @@ slots:
   room_id:
     type: text
     mappings:
-      - type: custom
+      - type: controlled
 
   preferred_view:
     type: text
@@ -52,7 +52,11 @@ slots:
     mappings:
       - type: from_llm
 
-  
+
+  total_cost:
+    type: float
+    mappings:
+      - type: controlled
 
   #preferred_room:
   #  type: text
@@ -65,24 +69,25 @@ slots:
     mappings:
       - type: from_llm
 
-
-
-
   matching_rooms:
     type: text
     mappings:
-      - type: custom
+      - type: controlled
 
+  booking_summary:
+    type: text
+    mappings:
+      - type: controlled
 
   assigned_room:
     type: text
     mappings:
-      - type: custom
+      - type: controlled
 
   room_info:
     type: text
     mappings:
-      - type: custom
+      - type: controlled
 
   check_in_date:
     type: text
@@ -102,20 +107,28 @@ slots:
   booking_id:
     type: text
     mappings:
-      - type: custom
+      - type: controlled
 
+  booking_info:
+    type: text
+    mappings:
+      - type: controlled
+  
 responses:
   utter_greet:
     - text: >
         Hello! Welcome to Ivy Gate B&B in Dalkey. Are you looking to
-        1) make a new booking, 2) ask about an existing booking, or
-        3) get information about the B&B or things to do in Dalkey?
+         make a new booking, ask about an existing booking, or 
+         get information about the B&B or things to do in Dalkey?
 
   utter_ask_num_guests:
     - text: "How many guests will be staying?"
 
   utter_ask_check_in_date:
-    - text: "What nights would you like to stay with us? Please provide your check-in and check-out dates."
+    - text: "When would you like to stay with us? Please provide your check-in date."
+
+  utter_ask_check_out_date:
+    - text: "When would you like to stay with us? Please provide your check-out date."
 
   utter_ask_guest_name:
     - text: "What name should I put the booking under?"
@@ -127,10 +140,10 @@ responses:
     - text: "Would you like to include breakfast with your stay?"
 
   utter_ask_confirm_booking:
-    - text: "Would you like me to confirm this booking and finalise it in our system?"
+    - text: "Would you like me to confirm this booking for {total_cost} and finalise it in our system? Here are the details: {booking_summary}"
 
   utter_ask_booking_id_lookup:
-    - text: "Could you provide your booking ID or the name the booking was made under?"
+    - text: "Could you provide your booking ID number?"
 
   utter_invalid_guest_count:
     - text: "I need a positive whole number of guests (1-10) before I can continue. How many people will be staying?"
@@ -146,12 +159,6 @@ responses:
 
   utter_booking_not_confirmed:
     - text: "No problem, I won't create the booking. If you'd like to adjust the dates, room type, or number of guests, just let me know."
-
-  utter_room_too_small:
-    - text: "The selected room cannot accommodate that many guests. Let's look for a different room with enough capacity."
-
-  utter_booking_save_error:
-    - text: "Something went wrong while saving the booking. Please try again in a moment or let me know if you'd like to start over."
 
   utter_room_assignment:
     - text: "The available room from {check_in_date} to {check_out_date} is: {assigned_room}. Here's more information about the room: {room_info}."
@@ -171,6 +178,9 @@ responses:
 
   utter_booking_not_found:
     - text: "I couldn't find a booking with that information. Could you double-check the booking ID or name?"
+
+  utter_booking_info:
+    - text: "Here are the room and booking details of booking #{booking_id_lookup}: {booking_info}. Is there anything else I can assist you with?"
 
   utter_free_chitchat_response:
     - text: "placeholder"

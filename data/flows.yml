@@ -18,17 +18,13 @@ flows:
 
       - collect: check_in_date
         description: >
-          Desired check-in dates for the stay. Dates must be
-          today or in the future, and check-out must be after check-in. Set the slot
-          check_in_date accordingly, in the format '%Y-%m-%d'.
+          Desired check-in date. Must be today or in the future.
         utter: utter_ask_check_in_date
 
       - collect: check_out_date
         description: >
-          Desired check-out date for the stay. Dates must be
-          today or in the future, and check-out must be after check-in. Set the slot
-          check_out_date accordingly, in the format '%Y-%m-%d'.
-        utter: utter_ask_check_in_date
+          Desired check-out date. Must be after check-in date.
+        utter: utter_ask_check_out_date
 
       - collect: guest_name
         description: >
@@ -58,35 +54,22 @@ flows:
 
       - action: utter_room_assignment
 
+      - action: action_summarize_booking
+
       - collect: confirm_booking
         description: >
           Final YES/NO confirmation from the caller to create the booking
           with the quoted total cost.
         utter: utter_ask_confirm_booking
-
-      - action: action_make_booking
-
-      - action: utter_booking_complete
-
-  check_availability:
-    description: >
-      Help callers quickly check what rooms are available for particular dates
-      and number of guests, WITHOUT creating a booking.
-    steps:
-      - collect: num_guests
-        description: >
-          Number of guests who would stay.
-        utter: utter_ask_num_guests
-        rejections:
-          - if: "slots.num_guests < 1 or slots.num_guests > 10"
-            utter: utter_invalid_guest_count
-
-      - collect: check_in_date
-        description: >
-          Desired check-in and check-out dates to check availability for.
-        utter: utter_ask_check_in_date
-
-      - action: action_find_availability
+        next:
+          - if: "slots.confirm_booking == True"
+            then:
+              - action: action_make_booking
+              - action: utter_booking_complete
+                next: END
+          - else:
+            - action: utter_booking_not_confirmed
+              next: END
 
   lookup_booking:
     description: >
@@ -99,18 +82,4 @@ flows:
 
       - action: action_lookup_booking
 
-  review_booking_before_confirmation:
-    description: >
-      Summarise an in-progress booking and get final YES/NO confirmation
-      before writing it to the database.
-    steps:
-      - action: action_summarize_booking
-
-      - collect: confirm_booking
-        description: >
-          Whether to proceed with the booking as summarised.
-        utter: utter_ask_confirm_booking
-
-      - action: action_make_booking
-
-      - action: utter_booking_complete
+      - action: utter_booking_info

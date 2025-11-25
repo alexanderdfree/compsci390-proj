@@ -1,6 +1,6 @@
-#too many patterns here. should only really have 5 at max
+
 flows:
-  pattern_session_start:
+  pattern_session_start: #Convo start
     description: >
       Flow for starting the conversation. The bot should greet the caller
       and briefly explain how it can help.
@@ -10,7 +10,7 @@ flows:
     steps:
       - action: utter_greet
 
-  pattern_make_booking:
+  pattern_make_booking: #Scenario 1
     description: >
       Scenario 1: Caller wants to make a NEW booking at Ivy Gate B&B.
       Use when the user asks to book/reserve a room or provides dates
@@ -19,23 +19,16 @@ flows:
     steps:
       - link: make_booking
 
-  pattern_check_availability:
-    description: >
-      Caller only wants to CHECK AVAILABILITY and prices for specific dates
-      and number of guests, without creating a booking yet.
-    name: pattern check availability
-    steps:
-      - link: check_availability
 
-  pattern_lookup_booking:
+  pattern_lookup_booking: #Scenario 2
     description: >
       Scenario 2: Caller has questions about an EXISTING booking.
       Use when the user mentions they have a booking or provides a booking ID.
     name: pattern lookup booking
     steps:
-      - action: action_summarize_booking
+      - link: lookup_booking
 
-  pattern_bnb_info:
+  pattern_bnb_info: #Scenario 3
     description: >
       Scenario 3: Caller asks about B&B details without making a booking:
       breakfast options, smoking policy, pets, room features,
@@ -44,7 +37,7 @@ flows:
     steps:
       - action: utter_free_chitchat_response
 
-  pattern_dalkey_activities:
+  pattern_dalkey_activities: #Scenario 4
     description: >
       Scenario 4: Caller asks about THINGS TO DO in Dalkey or nearby:
       attractions, walks, restaurants, cafés, pubs, views, etc.
