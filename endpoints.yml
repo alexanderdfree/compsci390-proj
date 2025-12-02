@@ -59,6 +59,6 @@ model_groups:
       - provider: openai
         model: gpt-4o
 
-tracker_store:
-  type: SQL
-  url: "sqlite:///./db/IvyGate.db"
+#tracker_store:
+#  type: SQL
+#  url: "sqlite:///./db/IvyGate.db"

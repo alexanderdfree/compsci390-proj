@@ -7,7 +7,6 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-*.db
 models/
 .Python
 build/
@@ -32,7 +31,6 @@ MANIFEST
 .rasa/cache/
 .rasa/
 
-db/
 results/
 #credentials.yml
 
