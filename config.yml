@@ -10,4 +10,5 @@ pipeline:
 policies:
 - name: FlowPolicy
 #- name: EnterpriseSearchPolicy
-assistant_id: 20251103-174634-sour-acre
+#assistant_id: 20251103-174634-sour-acre
+assistant_id: 20251201-010651-toasted-switch
